@@ -5,8 +5,12 @@ const axios = require("axios");
 const app = express();
 app.use(bodyParser.json());
 
+const events = [];
+
 app.post("/events", (req, res) => {
   const event = req.body;
+
+  events.push(event);
 
   axios.post("http://localhost:4000/events", event).catch(console.error);
   axios.post("http://localhost:4001/events", event).catch(console.error);
@@ -14,6 +18,10 @@ app.post("/events", (req, res) => {
   axios.post("http://localhost:4003/events", event).catch(console.error);
 
   res.status(204).send();
+});
+
+app.get("/events", (req, res) => {
+  res.send(events);
 });
 
 app.listen(4005, () => console.log("Listening on port 4005"));
