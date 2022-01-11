@@ -1,4 +1,4 @@
-import { Document, HydratedDocument, Model, Schema, model } from "mongoose";
+import { Document, Model, Schema, model } from "mongoose";
 
 interface UserAttributes {
   email: string;
@@ -11,7 +11,7 @@ interface UserDocument extends Document {
 }
 
 interface UserModel extends Model<UserDocument> {
-  build(attrs: UserAttributes): HydratedDocument<UserDocument>;
+  build(attrs: UserAttributes): UserDocument;
 }
 
 const userSchema = new Schema<UserDocument>({
