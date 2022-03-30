@@ -9,7 +9,9 @@ export const errorHandler = (
   next: NextFunction
 ) => {
   if (err instanceof CustomError) {
-    console.log(err);
+    if(process.env.NODE_ENV === 'development') {
+      console.log(err);
+    }
 
     return res.status(err.statusCode).send({ errors: err.serializeErrors() });
   }
