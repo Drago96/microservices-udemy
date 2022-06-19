@@ -13,7 +13,7 @@ it("fails with an email that does not exist", () => {
 });
 
 it("fails with an incorrect password", async () => {
-  await signup();
+  await global.signup();
 
   return request(app)
     .post("/api/users/signin")
@@ -25,7 +25,7 @@ it("fails with an incorrect password", async () => {
 });
 
 it("responds with a cookie when given valid credentials", async () => {
-  await signup();
+  await global.signup();
 
   const response = await request(app)
     .post("/api/users/signin")
