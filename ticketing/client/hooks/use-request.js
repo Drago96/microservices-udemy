@@ -21,6 +21,7 @@ const useRequest = ({ url, method, body, onSuccess }) => {
         onSuccess(response.data);
       }
     } catch (error) {
+      console.log(error);
       setErrors(error.response.data.errors.map((err) => err.message));
     }
   };
