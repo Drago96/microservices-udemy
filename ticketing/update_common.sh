@@ -1,4 +1,4 @@
-projects=( "auth" "tickets" )
+projects=( "auth" "tickets" "orders" )
 
 for project in "${projects[@]}"
 do
