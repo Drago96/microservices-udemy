@@ -1,7 +1,9 @@
 import request from "supertest";
 import mongoose from "mongoose";
+import { Subject } from "@drptickets/common";
 
 import { app } from "../../app";
+import { natsWrapper } from "../../nats-wrapper";
 
 it("returns a 404 if the ticket is not found", async () => {
   await request(app)
@@ -68,4 +70,25 @@ it("updates the ticket with valid inputs", async () => {
 
   expect(updateResponse.body.title).toEqual("Test title 2");
   expect(updateResponse.body.price).toEqual(20);
+});
+
+it("publishes an event", async () => {
+  const cookie = global.signin();
+
+  const createResponse = await request(app)
+    .post("/api/tickets")
+    .set("Cookie", cookie)
+    .send({ title: "Test title 1", price: 10 });
+
+  await request(app)
+    .put(`/api/tickets/${createResponse.body.id}`)
+    .set("Cookie", cookie)
+    .send({ title: "Test title 2", price: 20 })
+    .expect(200);
+
+  expect(natsWrapper.client.publish).toHaveBeenCalledWith(
+    Subject.TicketUpdated,
+    expect.anything(),
+    expect.anything()
+  );
 });
