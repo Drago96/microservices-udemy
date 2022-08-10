@@ -1,5 +1,6 @@
 import { OrderStatus } from "@drptickets/common";
 import { Document, Model, Schema, model } from "mongoose";
+import { updateIfCurrentPlugin } from "mongoose-update-if-current";
 
 import { Order } from "./order";
 
@@ -13,6 +14,7 @@ export interface TicketDocument extends Document {
   title: string;
   price: number;
   isReserved(): Promise<boolean>;
+  version: number;
 }
 
 interface TicketModel extends Model<TicketDocument> {
@@ -41,6 +43,9 @@ const ticketSchema = new Schema<TicketDocument>(
     },
   }
 );
+
+ticketSchema.set("versionKey", "version");
+ticketSchema.plugin(updateIfCurrentPlugin);
 
 ticketSchema.statics.build = (attrs: TicketDocument) => {
   return new Ticket({

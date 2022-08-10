@@ -1,5 +1,6 @@
 import { OrderStatus } from "@drptickets/common";
 import { Document, Model, Schema, model } from "mongoose";
+import { updateIfCurrentPlugin } from "mongoose-update-if-current";
 
 import { TicketDocument } from "./ticket";
 
@@ -15,6 +16,7 @@ interface OrderDocument extends Document {
   status: OrderStatus;
   expiresAt: Date;
   ticket: TicketDocument;
+  version: number;
 }
 
 interface OrderModel extends Model<OrderDocument> {
@@ -51,6 +53,9 @@ const orderSchema = new Schema<OrderDocument>(
     },
   }
 );
+
+orderSchema.set("versionKey", "version");
+orderSchema.plugin(updateIfCurrentPlugin);
 
 orderSchema.statics.build = (attrs: OrderDocument) => {
   return new Order(attrs);
