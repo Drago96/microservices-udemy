@@ -1,15 +1,18 @@
+import { OrderStatus } from "@drptickets/common";
 import { Document, Model, Schema, model } from "mongoose";
 
+import { Order } from "./order";
+
 interface TicketAttributes {
+  id?: string;
   title: string;
   price: number;
-  userId: string;
 }
 
-interface TicketDocument extends Document {
+export interface TicketDocument extends Document {
   title: string;
   price: number;
-  userId: string;
+  isReserved(): Promise<boolean>;
 }
 
 interface TicketModel extends Model<TicketDocument> {
@@ -27,10 +30,6 @@ const ticketSchema = new Schema<TicketDocument>(
       required: true,
       min: 0,
     },
-    userId: {
-      type: String,
-      required: true,
-    },
   },
   {
     toJSON: {
@@ -44,7 +43,24 @@ const ticketSchema = new Schema<TicketDocument>(
 );
 
 ticketSchema.statics.build = (attrs: TicketDocument) => {
-  return new Ticket(attrs);
+  return new Ticket({
+    _id: attrs.id,
+    title: attrs.title,
+    price: attrs.price,
+  });
+};
+
+ticketSchema.methods.isReserved = async function () {
+  return Order.exists({
+    ticket: this,
+    status: {
+      $in: [
+        OrderStatus.Created,
+        OrderStatus.AwaitingPayment,
+        OrderStatus.Complete,
+      ],
+    },
+  });
 };
 
 const Ticket = model<TicketDocument, TicketModel>("Ticket", ticketSchema);

@@ -1,6 +1,19 @@
 import express, { Request, Response } from "express";
-import { requireAuth, validateRequest } from "@drptickets/common";
+import {
+  BadRequestError,
+  NotFoundError,
+  OrderStatus,
+  requireAuth,
+  validateRequest,
+} from "@drptickets/common";
 import { body } from "express-validator";
+
+import { Ticket } from "../models/ticket";
+import { Order } from "../models/order";
+import { OrderCreatedPublihser } from "../events/publishers/order-created-publisher";
+import { natsWrapper } from "../nats-wrapper";
+
+const EXPIRATION_WINDOW_SECONDS = 15 * 60;
 
 const router = express.Router();
 
@@ -10,7 +23,46 @@ router.post(
   body("ticketId").not().isEmpty().withMessage("TicketId must be provided"),
   validateRequest,
   async (req: Request, res: Response) => {
-    res.send({});
+    const { ticketId } = req.body;
+
+    const ticket = await Ticket.findById(ticketId);
+
+    if (!ticket) {
+      throw new NotFoundError();
+    }
+
+    const isReserved = await ticket.isReserved();
+
+    if (isReserved) {
+      throw new BadRequestError("Ticket has already been reserved");
+    }
+
+    const expirationDate = new Date();
+    expirationDate.setSeconds(
+      expirationDate.getSeconds() + EXPIRATION_WINDOW_SECONDS
+    );
+
+    const order = Order.build({
+      expiresAt: expirationDate,
+      status: OrderStatus.Created,
+      userId: req.currentUser!.id,
+      ticket,
+    });
+
+    await order.save();
+
+    new OrderCreatedPublihser(natsWrapper.client).publish({
+      id: order.id,
+      status: order.status,
+      userId: order.userId,
+      expiresAt: order.expiresAt.toISOString(),
+      ticket: {
+        id: ticket.id,
+        price: ticket.price,
+      },
+    });
+
+    res.status(201).send(order);
   }
 );
 
