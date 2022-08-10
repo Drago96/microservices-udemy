@@ -1,5 +1,5 @@
 import { OrderStatus } from "@drptickets/common";
-import { Document, Model, Schema, model } from "mongoose";
+import { Document, Model, Schema, model, ObjectId } from "mongoose";
 import { updateIfCurrentPlugin } from "mongoose-update-if-current";
 
 import { Order } from "./order";
@@ -19,6 +19,10 @@ export interface TicketDocument extends Document {
 
 interface TicketModel extends Model<TicketDocument> {
   build(attrs: TicketAttributes): TicketDocument;
+  findVersioned(event: {
+    id: string;
+    version: number;
+  }): Promise<TicketDocument | null>;
 }
 
 const ticketSchema = new Schema<TicketDocument>(
@@ -53,6 +57,13 @@ ticketSchema.statics.build = (attrs: TicketDocument) => {
     title: attrs.title,
     price: attrs.price,
   });
+};
+
+ticketSchema.statics.findVersioned = async (event: {
+  id: string;
+  version: number;
+}) => {
+  return Ticket.findOne({ _id: event.id, version: event.version - 1 });
 };
 
 ticketSchema.methods.isReserved = async function () {
