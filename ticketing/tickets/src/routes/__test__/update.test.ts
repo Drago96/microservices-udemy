@@ -4,6 +4,7 @@ import { Subject } from "@drptickets/common";
 
 import { app } from "../../app";
 import { natsWrapper } from "../../nats-wrapper";
+import { Ticket } from "../../models/ticket";
 
 it("returns a 404 if the ticket is not found", async () => {
   await request(app)
@@ -31,6 +32,26 @@ it("returns 403 if the user does not own the ticket", async () => {
     .set("Cookie", global.signin())
     .send({ title: "Test title 2", price: 20 })
     .expect(403);
+});
+
+it("returns 400 if the ticket is reserved", async () => {
+  const cookie = global.signin();
+
+  const createResponse = await request(app)
+    .post("/api/tickets")
+    .set("Cookie", cookie)
+    .send({ title: "Test title 1", price: 10 });
+
+  const ticket = await Ticket.findById(createResponse.body.id);
+
+  ticket!.orderId = "asdf";
+  await ticket!.save();
+
+  await request(app)
+    .put(`/api/tickets/${createResponse.body.id}`)
+    .set("Cookie", cookie)
+    .send({ title: "Test title 2", price: 20 })
+    .expect(400);
 });
 
 it("returns 422 if the user provides an invalid title or price", async () => {

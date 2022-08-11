@@ -11,6 +11,7 @@ interface TicketDocument extends Document {
   title: string;
   price: number;
   userId: string;
+  orderId?: string;
   version: number;
 }
 
@@ -32,6 +33,9 @@ const ticketSchema = new Schema<TicketDocument>(
     userId: {
       type: String,
       required: true,
+    },
+    orderId: {
+      type: String,
     },
   },
   {
