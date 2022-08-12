@@ -1,18 +1,21 @@
 import axios from "axios";
 import { useState } from "react";
 
-const useRequest = ({ url, method, body, onSuccess }) => {
+const useRequest = ({ url, method, body = {}, onSuccess }) => {
   const [data, setData] = useState(null);
   const [errors, setErrors] = useState([]);
 
-  const doRequest = async () => {
+  const doRequest = async (additionalBodyProps = {}) => {
     setErrors([]);
 
     try {
       const response = await axios({
         url,
         method,
-        data: body,
+        data: {
+          ...body,
+          ...additionalBodyProps,
+        },
       });
 
       setData(response.data);

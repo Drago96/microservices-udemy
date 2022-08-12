@@ -7,18 +7,26 @@ const App = ({ Component, pageProps, currentUser }) => {
   return (
     <>
       <Header currentUser={currentUser} />
-      <Component {...pageProps} />
+      <div className="container">
+        <Component currentUser={currentUser} {...pageProps} />
+      </div>
     </>
   );
 };
 
 App.getInitialProps = async ({ ctx: context, Component }) => {
-  const { data } = await buildClient(context).get("/api/users/currentuser");
+  const client = buildClient(context);
+
+  const { data } = await client.get("/api/users/currentuser");
 
   let pageProps = {};
 
   if (Component.getInitialProps) {
-    pageProps = await Component.getInitialProps(context);
+    pageProps = await Component.getInitialProps(
+      context,
+      client,
+      data.currentUser
+    );
   }
 
   return {
