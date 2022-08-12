@@ -47,7 +47,7 @@ userSchema.pre("save", async function (done) {
   done();
 });
 
-userSchema.statics.build = (attrs: UserDocument) => {
+userSchema.statics.build = (attrs: UserAttributes) => {
   return new User(attrs);
 };
 

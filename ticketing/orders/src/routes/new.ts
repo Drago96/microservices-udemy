@@ -10,7 +10,7 @@ import { body } from "express-validator";
 
 import { Ticket } from "../models/ticket";
 import { Order } from "../models/order";
-import { OrderCreatedPublihser } from "../events/publishers/order-created-publisher";
+import { OrderCreatedPublisher } from "../events/publishers/order-created-publisher";
 import { natsWrapper } from "../nats-wrapper";
 
 const EXPIRATION_WINDOW_SECONDS = 15 * 60;
@@ -51,7 +51,7 @@ router.post(
 
     await order.save();
 
-    new OrderCreatedPublihser(natsWrapper.client).publish({
+    new OrderCreatedPublisher(natsWrapper.client).publish({
       id: order.id,
       version: order.version,
       status: order.status,

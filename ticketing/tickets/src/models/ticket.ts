@@ -52,7 +52,7 @@ const ticketSchema = new Schema<TicketDocument>(
 ticketSchema.set("versionKey", "version");
 ticketSchema.plugin(updateIfCurrentPlugin);
 
-ticketSchema.statics.build = (attrs: TicketDocument) => {
+ticketSchema.statics.build = (attrs: TicketAttributes) => {
   return new Ticket(attrs);
 };
 
