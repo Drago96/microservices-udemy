@@ -1,19 +1,19 @@
 import {
   Listener,
   Subject,
-  OrderCancelledEvent,
   OrderStatus,
+  OrderConfirmedEvent,
 } from "@drptickets/common";
 import { Message } from "node-nats-streaming";
 
 import { QUEUE_GROUP_NAME } from "./queue-group-name";
 import { Order } from "../../models/order";
 
-export class OrderCancelledListener extends Listener<OrderCancelledEvent> {
-  readonly subject = Subject.OrderCancelled;
+export class OrderConfirmedLitener extends Listener<OrderConfirmedEvent> {
+  readonly subject = Subject.OrderConfirmed;
   queueGroupName = QUEUE_GROUP_NAME;
 
-  async onMessage(data: OrderCancelledEvent["data"], msg: Message) {
+  async onMessage(data: OrderConfirmedEvent["data"], msg: Message) {
     const { id, version } = data;
 
     const order = await Order.findPrevious({ id, version });
@@ -22,7 +22,7 @@ export class OrderCancelledListener extends Listener<OrderCancelledEvent> {
       throw new Error("Order not found");
     }
 
-    order.status = OrderStatus.Cancelled;
+    order.status = OrderStatus.AwaitingPayment;
     await order.save();
   }
 }

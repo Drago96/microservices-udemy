@@ -31,10 +31,10 @@ router.post(
       throw new NotFoundError();
     }
 
-    const isReserved = await ticket.isReserved();
+    const isUnavailable = await ticket.isUnavailable();
 
-    if (isReserved) {
-      throw new BadRequestError("Ticket has already been reserved");
+    if (isUnavailable) {
+      throw new BadRequestError("This ticket is unavailable");
     }
 
     const expirationDate = new Date();
@@ -60,6 +60,7 @@ router.post(
       ticket: {
         id: ticket.id,
         price: ticket.price,
+        version: ticket.version,
       },
     });
 

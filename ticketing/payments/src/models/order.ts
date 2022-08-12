@@ -18,7 +18,7 @@ interface OrderDocument extends Document {
 
 interface OrderModel extends Model<OrderDocument> {
   build(attrs: OrderAttributes): OrderDocument;
-  findVersioned(event: {
+  findPrevious(event: {
     id: string;
     version: number;
   }): Promise<OrderDocument | null>;
@@ -63,7 +63,7 @@ orderSchema.statics.build = (attrs: OrderAttributes) => {
   });
 };
 
-orderSchema.statics.findVersioned = async (event: {
+orderSchema.statics.findPrevious = async (event: {
   id: string;
   version: number;
 }) => {

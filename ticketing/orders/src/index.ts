@@ -4,6 +4,8 @@ import { app } from "./app";
 import { ExpirationCompleteListener } from "./events/listeners/expiration-complete-listener";
 import { PaymentCreatedListener } from "./events/listeners/payment-created-listener";
 import { TicketCreatedListener } from "./events/listeners/ticket-created-listener";
+import { TicketNotReservedListener } from "./events/listeners/ticket-not-reserved-listener";
+import { TicketReservedListener } from "./events/listeners/ticket-reserved-listener";
 import { TicketUpdatedListener } from "./events/listeners/ticket-updated-listener";
 import { natsWrapper } from "./nats-wrapper";
 
@@ -46,6 +48,8 @@ const startServer = async () => {
 
     new TicketCreatedListener(natsWrapper.client).listen();
     new TicketUpdatedListener(natsWrapper.client).listen();
+    new TicketReservedListener(natsWrapper.client).listen();
+    new TicketNotReservedListener(natsWrapper.client).listen();
     new ExpirationCompleteListener(natsWrapper.client).listen();
     new PaymentCreatedListener(natsWrapper.client).listen();
 

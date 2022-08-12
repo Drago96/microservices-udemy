@@ -25,6 +25,7 @@ it("associates a ticket with an order", async () => {
     ticket: {
       id: ticket.id,
       price: ticket.price,
+      version: ticket.version,
     },
     version: 0,
   };
@@ -55,6 +56,7 @@ it("publishes a ticket updated event", async () => {
     ticket: {
       id: ticket.id,
       price: ticket.price,
+      version: ticket.version,
     },
     version: 0,
   };

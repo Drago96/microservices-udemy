@@ -13,13 +13,13 @@ interface TicketAttributes {
 export interface TicketDocument extends Document {
   title: string;
   price: number;
-  isReserved(): Promise<boolean>;
+  isUnavailable(): Promise<boolean>;
   version: number;
 }
 
 interface TicketModel extends Model<TicketDocument> {
   build(attrs: TicketAttributes): TicketDocument;
-  findVersioned(event: {
+  findPrevious(event: {
     id: string;
     version: number;
   }): Promise<TicketDocument | null>;
@@ -59,14 +59,14 @@ ticketSchema.statics.build = (attrs: TicketAttributes) => {
   });
 };
 
-ticketSchema.statics.findVersioned = async (event: {
+ticketSchema.statics.findPrevious = async (event: {
   id: string;
   version: number;
 }) => {
   return Ticket.findOne({ _id: event.id, version: event.version - 1 });
 };
 
-ticketSchema.methods.isReserved = async function () {
+ticketSchema.methods.isUnavailable = async function () {
   return Order.exists({
     ticket: this,
     status: {

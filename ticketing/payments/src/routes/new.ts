@@ -5,6 +5,7 @@ import {
   NotFoundError,
   OrderStatus,
   requireAuth,
+  UniqueConstraintViolationError,
   validateRequest,
 } from "@drptickets/common";
 import { body } from "express-validator";
@@ -35,8 +36,18 @@ router.post(
       throw new NotAuthorizedError();
     }
 
-    if (order.status === OrderStatus.Cancelled) {
+    if (order.status !== OrderStatus.AwaitingPayment) {
       throw new BadRequestError("Cannot pay for this order");
+    }
+
+    const existingPayment = await Payment.findOne({
+      orderId,
+    });
+
+    if (existingPayment) {
+      throw new UniqueConstraintViolationError(
+        "A payment for this order already exists"
+      );
     }
 
     const charge = await stripe.charges.create({

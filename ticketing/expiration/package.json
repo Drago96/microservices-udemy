@@ -9,16 +9,13 @@
   },
   "jest": {
     "preset": "ts-jest",
-    "testEnvironment": "node",
-    "setupFilesAfterEnv": [
-      "./src/test/setup.ts"
-    ]
+    "testEnvironment": "node"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@drptickets/common": "^1.0.18",
+    "@drptickets/common": "^1.0.29",
     "@types/bull": "^3.15.9",
     "bull": "^4.8.5",
     "node-nats-streaming": "^0.3.2",
