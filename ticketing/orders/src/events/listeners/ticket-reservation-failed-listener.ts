@@ -2,20 +2,19 @@ import {
   Listener,
   OrderStatus,
   Subject,
-  TicketNotReservedEvent,
+  TicketReservationFailedEvent,
 } from "@drptickets/common";
 import { Message } from "node-nats-streaming";
 
 import { QUEUE_GROUP_NAME } from "./queue-group-name";
-import { Ticket } from "../../models/ticket";
 import { Order } from "../../models/order";
 import { OrderCancelledPublisher } from "../publishers/order-cancelled-publisher";
 
-export class TicketNotReservedListener extends Listener<TicketNotReservedEvent> {
-  readonly subject = Subject.TicketNotReserved;
+export class TicketReservationFailedListener extends Listener<TicketReservationFailedEvent> {
+  readonly subject = Subject.TicketReservationFailed;
   queueGroupName = QUEUE_GROUP_NAME;
 
-  async onMessage(data: TicketNotReservedEvent["data"], msg: Message) {
+  async onMessage(data: TicketReservationFailedEvent["data"], msg: Message) {
     const { orderId } = data;
 
     const order = await Order.findById(orderId);

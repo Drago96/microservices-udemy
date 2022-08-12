@@ -4,7 +4,7 @@ import { Message } from "node-nats-streaming";
 import { QUEUE_GROUP_NAME } from "./queue-group-name";
 import { Ticket } from "../../models/ticket";
 import { TicketUpdatedPublisher } from "../publishers/ticket-updated-publisher";
-import { TicketNotReservedPublisher } from "../publishers/ticket-not-reserved-publisher";
+import { TicketReservationFailedPublisher } from "../publishers/ticket-reservation-failed-publisher";
 import { TicketReservedPublisher } from "../publishers/ticket-reserved-publisher";
 
 export class OrderCreatedListener extends Listener<OrderCreatedEvent> {
@@ -20,7 +20,7 @@ export class OrderCreatedListener extends Listener<OrderCreatedEvent> {
     const ticket = await Ticket.findOne({ _id: ticketId, version });
 
     if (!ticket) {
-      await new TicketNotReservedPublisher(this.client).publish({
+      await new TicketReservationFailedPublisher(this.client).publish({
         id: ticketId,
         orderId,
         version,
